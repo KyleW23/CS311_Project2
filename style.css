@@ -1,6 +1,30 @@
+/* Add root color vars */
+
+/* Center input and button
+    Maybe put it closer to middle of screen and 
+    use animation to move it to the page on submit */
+.inputContainer {
+    position: relative;
+    display: inline-block;
+}
+
+#search {
+    width: 15rem;
+    height: 2.5rem;
+    padding: 0 6.5rem 0 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+
 #button {
     width: 5rem;
     height: 2rem;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    border: none;
+    background-color: orange;
     border-radius: 5px;
 }
 
@@ -14,6 +38,7 @@
 }
 
 #results .articleCard {
+    height: 10rem;
     margin-bottom: 1rem;
     padding: 1rem;
     display: grid;
@@ -30,9 +55,14 @@
     box-shadow: 0 5px 10px rgb(111, 111, 111);
 }
 
+#results .articleCard .left {
+    height: 100%;
+    overflow: hidden;
+}
+
 #results .articleCard img {
     width: 100%;
-    height: auto;
+    aspect-ratio: 1 / 1;
 }
 
 #results .articleCard .middle {
@@ -47,10 +77,23 @@
     font-size: 1.5rem;
 }
 
+#results .articleCard:hover .title {
+    color: orange;
+}
+
 #results .articleCard .description {
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 #results .articleCard .right {
     justify-items: right;
+}
+
+#results .articleCard .source {
+    color: orange;
+    font-weight: bold;
 }

@@ -1,52 +1,69 @@
-let data = {
-    articles: {
-        results: [
-            {
-                0: {
-                    uri: '8909189793',
-                    lang: 'eng',
-                    isDuplicate: false,
-                    date: '2025-10-14',
-                    time: '23:42:01',
-                    dateTime: '2025-10-14T23:42:01Z',
-                    dateTimePub: '2025-10-14T23:31:09Z',
-                    dataType: 'news',
-                    sim: 0.6274510025978088,
-                    url: 'https://finance.yahoo.com/news/elon-musk-says-bitcoin-energy-233109041.html',
-                    title: "Elon Musk Says Bitcoin Has Energy: 'You Can Issue Fake Fiat...But It Is Impossible To Fake Energy'",
-                    body: 'Benzinga and Yahoo Finance LLC may earn commission or revenue on some items through the links below. Elon Musk said Tuesday that Bitcoin (CRYPTO: BTC) is based on energy and, unlike fiat currencies, governments cannot fake it and issue their own. The Tesla and SpaceX CEO responded to an X post ...',
-                    source: {
-                        uri: 'finance.yahoo.com',
-                        dataType: 'news',
-                        title: 'Yahoo! Finance',
-                    },
-                    image: 'https://media.zenfs.com/en/benzinga_79/76eb89aabdb290497bfa4796cb018f35',
-                    eventUri: 'eng-11051153',
-                    sentiment: 0.1764705882352942,
-                    wgt: 498181321,
-                    relevance: 51,
-                },
+let url = 'https://eventregistry.org/api/v1/article/getArticles';
+let apiKey = '';
+
+const getData = async () => {
+    const search = document.getElementById('search');
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
-        ],
-    },
+            body: JSON.stringify({
+                action: 'getArticles',
+                keyword: search.value,
+                sourceLocationUri: 'http://en.wikipedia.org/wiki/United_States',
+                ignoreSourceGroupUri: 'paywall/paywalled_sources',
+                articlesPage: 1,
+                articlesCount: 20,
+                articlesSortBy: 'date',
+                articlesSortByAsc: false,
+                dataType: ['news', 'pr'],
+                forceMaxDataTimeWindow: 31,
+                resultType: 'articles',
+                apiKey: apiKey,
+            }),
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error: ', error);
+        return {
+            error: true,
+            message: error.message,
+        };
+    }
 };
 
-const displayNews = () => {
+const displayNews = async () => {
     const container = document.getElementById('results');
     container.innerHTML = '';
 
-    const resultsArray = data.articles.results;
-    resultsArray.forEach((resultObj) => {
-        Object.values(resultObj).forEach((result) => {
-            const link = document.createElement('a');
-            link.href = result.url;
-            link.target = '_blank';
-            link.className = 'articleLink';
-            // Need to add alt to img
-            link.innerHTML = `
+    const data = await getData();
+
+    if (data.error) {
+        container.innerHTML = `<p class="error">Failed to load articles: ${data.message}</p>`;
+        return;
+    }
+
+    const results = data.articles.results;
+    if (!results || results.length == 0) {
+        container.innerHTML = `<p>No articles found.</p>`;
+        return;
+    }
+
+    results.forEach((result) => {
+        const link = document.createElement('a');
+        link.href = result.url;
+        link.target = '_blank';
+        link.className = 'articleLink';
+        // Need to add alt to img
+        link.innerHTML = `
                 <div class="articleCard">
                     <div class="left">
-                        <img src="${result.image}"  />
+                        <img src="${result.image}" alt="Image From article: ${result.title}"  />
                     </div>
                     <div class="middle">
                         <h1 class="title">${result.title}</h1>
@@ -58,10 +75,15 @@ const displayNews = () => {
                     </div>
                 </div>
             `;
-            container.appendChild(link);
-        });
+        container.appendChild(link);
     });
 };
 
 const button = document.getElementById('button');
 button.addEventListener('click', displayNews);
+
+const form = document.getElementById('searchForm');
+form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    displayNews();
+});
