@@ -79,11 +79,20 @@ const displayNews = async () => {
     });
 };
 
+const moveSearch = async () => {
+    const search = document.getElementById('searchWrapper');
+    search.className = 'searchWrapper';
+};
+
 const button = document.getElementById('button');
-button.addEventListener('click', displayNews);
+button.addEventListener('click', () => {
+    displayNews();
+    moveSearch();
+});
 
 const form = document.getElementById('searchForm');
 form.addEventListener('submit', function (event) {
     event.preventDefault();
     displayNews();
+    moveSearch();
 });
