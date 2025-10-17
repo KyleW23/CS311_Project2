@@ -3,36 +3,47 @@ let apiKey = '';
 
 const getData = async () => {
     const search = document.getElementById('search');
+    let value = search.value.trim();
+    if (value) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'getArticles',
+                    keyword: value,
+                    keywordSearchMode: 'exact',
+                    sourceLocationUri:
+                        'http://en.wikipedia.org/wiki/United_States',
+                    ignoreSourceGroupUri: 'paywall/paywalled_sources',
+                    lang: 'eng',
+                    articlesPage: 1,
+                    articlesCount: 30,
+                    articlesSortBy: 'rel',
+                    articlesSortByAsc: false,
+                    dataType: ['news', 'pr'],
+                    forceMaxDataTimeWindow: 31,
+                    isDuplicate: 'skipDuplicates',
+                    resultType: 'articles',
+                    apiKey: apiKey,
+                }),
+            });
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'getArticles',
-                keyword: search.value,
-                sourceLocationUri: 'http://en.wikipedia.org/wiki/United_States',
-                ignoreSourceGroupUri: 'paywall/paywalled_sources',
-                articlesPage: 1,
-                articlesCount: 20,
-                articlesSortBy: 'date',
-                articlesSortByAsc: false,
-                dataType: ['news', 'pr'],
-                forceMaxDataTimeWindow: 31,
-                resultType: 'articles',
-                apiKey: apiKey,
-            }),
-        });
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error: ', error);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error: ', error);
+            return {
+                error: true,
+                message: error.message,
+            };
+        }
+    } else {
         return {
             error: true,
-            message: error.message,
+            message: 'User needs an input',
         };
     }
 };
@@ -45,6 +56,7 @@ const displayNews = async () => {
 
     if (data.error) {
         container.innerHTML = `<p class="error">Failed to load articles: ${data.message}</p>`;
+        container.style.textAlign = 'center';
         return;
     }
 
@@ -86,13 +98,13 @@ const moveSearch = async () => {
 
 const button = document.getElementById('button');
 button.addEventListener('click', () => {
-    displayNews();
     moveSearch();
+    displayNews();
 });
 
 const form = document.getElementById('searchForm');
 form.addEventListener('submit', function (event) {
     event.preventDefault();
-    displayNews();
     moveSearch();
+    displayNews();
 });
